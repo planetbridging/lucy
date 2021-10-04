@@ -1,10 +1,11 @@
 import React from "react";
+
 import io from "socket.io-client";
 import * as sec from "../crypto";
 import * as sc from "./lucymode/src/templateGenerator/staticContent";
 import * as dc from "./lucymode/src/templateGenerator/dynamicContent";
 import * as cr from "./lucymode/src/templateGenerator/contentReader";
-
+import * as ic from "@chakra-ui/icons";
 var lstComputers = [];
 
 var sk = "";
@@ -16,101 +17,156 @@ chatSocket.on("setup", function (data) {
 
 chatSocket.on("test", function (data) {
   var de = sec.decrypt(sk, data);
-  console.log(de);
+  //console.log(de);
 });
 
 class HomePage extends React.Component {
-  state = {};
+  state = { menuItems: [] };
 
-  componentDidMount() {}
+  componentDidMount() {
+    this.setState({
+      menuItems: [
+        ["home", "DragHandleIcon", this.btnHome, "blue"],
+        ["recon", "ViewIcon", this.btnRecon, "blue.200"],
+        ["scan", "Search2Icon", this.btnScan, "blue.200"],
+        ["upgrade", "TriangleUpIcon", this.btnUpgrade, "blue.200"],
+        ["reconnect", "RepeatClockIcon", this.btnReconnect, "blue.200"],
+        ["report", "EditIcon", this.btnReport, "blue.200"],
+      ],
+    });
+  }
 
-  generateStatistics = () => {};
+  btnHome = () => {
+    this.setBtnTab(0);
+  };
+
+  btnRecon = () => {
+    this.setBtnTab(1);
+  };
+
+  btnScan = () => {
+    this.setBtnTab(2);
+  };
+
+  btnUpgrade = () => {
+    this.setBtnTab(3);
+  };
+
+  btnReconnect = () => {
+    this.setBtnTab(4);
+  };
+
+  btnReport = () => {
+    this.setBtnTab(5);
+  };
+
+  setBtnTab = (num) => {
+    const { menuItems } = this.state;
+    if (num <= menuItems.length) {
+      for (var i in menuItems) {
+        menuItems[i][3] = "blue.200";
+      }
+      menuItems[num][3] = "blue";
+      this.setState({ menuItems: menuItems });
+    }
+  };
+
+  renderSelectNetwork = () => {
+    var j = {
+      i: "slidepanel",
+      side: "left",
+      size: "xs",
+      btn1content: {
+        i: "HamburgerIcon",
+        w: "8",
+        h: "8",
+        color: "white",
+      },
+      btn1colorScheme: "blue",
+      btn2content: "Back",
+      btn2colorScheme: "blue",
+      content: {
+        i: "wrapitem",
+        content: {
+          i: "slidepanel",
+          side: "top",
+          size: "full",
+          btn1content: "Udemy & more",
+          btn1colorScheme: "blue",
+          btn2content: "Back",
+          btn2colorScheme: "blue",
+        },
+      },
+    };
+    return j;
+  };
+
+  renderMenu = () => {
+    const { menuItems } = this.state;
+    var lstMenu = [];
+    for (var i in menuItems) {
+      lstMenu.push({
+        i: "button",
+        onClick: menuItems[i][2],
+        colorScheme: menuItems[i][3],
+        size: "sm",
+        content: {
+          i: "box",
+          content: [
+            {
+              i: menuItems[i][1],
+              w: "3",
+              h: "3",
+              color: "white",
+            },
+            {
+              i: "text",
+              content: menuItems[i][0],
+              color: "white",
+            },
+          ],
+        },
+      });
+    }
+
+    var j = {
+      i: "center",
+      content: {
+        i: "vstack",
+        spacing: "5",
+        content: [
+          {
+            i: "wrapitem",
+            p: "2",
+            content: {
+              i: "vstack",
+              content: [this.renderSelectNetwork()],
+            },
+          },
+
+          lstMenu,
+        ],
+        w: "95vw",
+      },
+    };
+    return j;
+  };
 
   render() {
     var j = {
       content: [
         {
-          i: "box",
-          bg: "#848484",
+          i: "flex",
           content: [
+            { i: "box", content: this.renderMenu(), bg: "#222994" },
             {
-              i: "center",
-              content: {
-                i: "wrap",
-                spacing: "5",
-                content: [
-                  {
-                    i: "wrapitem",
-                    content: {
-                      i: "box",
-                      p: "2",
-                      content: {
-                        i: "slidepanel",
-                        side: "left",
-                        size: "xs",
-                        btn1content: "Menu",
-                        btn1colorScheme: "blue",
-                        btn2content: "Back",
-                        btn2colorScheme: "blue",
-                        content: {
-                          i: "wrapitem",
-                          content: {
-                            i: "slidepanel",
-                            side: "top",
-                            size: "full",
-                            btn1content: "Udemy & more",
-                            btn1colorScheme: "blue",
-                            btn2content: "Back",
-                            btn2colorScheme: "blue",
-                          },
-                        },
-                      },
-                    },
-                  },
-                  {
-                    i: "box",
-                    content: [
-                      { i: "box", content: "Computers" },
-
-                      { i: "center", content: { i: "box", content: "0" } },
-                    ],
-                    p: "1",
-                  },
-                ],
-                w: "95vw",
-              },
-            },
-            {
-              i: "center",
-              content: {
-                i: "grid",
-                content: [
-                  {
-                    i: "griditem",
-                    content: [
-                      { i: "box", content: "1", bg: "#616161" },
-                      { i: "box", content: "2", bg: "#848484" },
-                    ],
-                    colSpan: "1",
-                    bg: "#111111",
-                  },
-                  {
-                    i: "griditem",
-                    content: [
-                      { i: "box", content: "1", bg: "#616161" },
-                      { i: "box", content: "2", bg: "#848484" },
-                    ],
-                    colStart: "5",
-                    colEnd: "6",
-                    bg: "#111111",
-                  },
-                ],
-                w: "90vw",
-                h: "90vh",
-                bg: "#3395FF",
-                templateColumns: "repeat(5, 1fr)",
-                gap: "4",
-              },
+              i: "box",
+              h: "100vh",
+              p: "4",
+              content: [{ i: "text", content: "yay" }],
+              flex: "1",
+              bg: "#3395FF",
+              boxShadow: "dark-lg",
             },
           ],
         },
