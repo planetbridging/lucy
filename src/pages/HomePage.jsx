@@ -1,4 +1,6 @@
 import React from "react";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 import io from "socket.io-client";
 import * as sec from "../crypto";
@@ -21,43 +23,28 @@ chatSocket.on("test", function (data) {
 });
 
 class HomePage extends React.Component {
-  state = { menuItems: [] };
+  state = {
+    menuItems: [],
+    currentTab: 0,
+    report: "hey hows it going<p>m</p><p>m</p>",
+  };
 
   componentDidMount() {
     this.setState({
       menuItems: [
-        ["home", "DragHandleIcon", this.btnHome, "blue"],
-        ["recon", "ViewIcon", this.btnRecon, "blue.200"],
-        ["scan", "Search2Icon", this.btnScan, "blue.200"],
-        ["upgrade", "TriangleUpIcon", this.btnUpgrade, "blue.200"],
-        ["reconnect", "RepeatClockIcon", this.btnReconnect, "blue.200"],
-        ["report", "EditIcon", this.btnReport, "blue.200"],
+        ["home", "DragHandleIcon", (e) => this.btnSetTab(0), "blue"],
+        ["recon", "ViewIcon", (e) => this.btnSetTab(1), "blue.200"],
+        ["scan", "Search2Icon", (e) => this.btnSetTab(2), "blue.200"],
+        ["upgrade", "TriangleUpIcon", (e) => this.btnSetTab(3), "blue.200"],
+        ["reconnect", "RepeatClockIcon", (e) => this.btnSetTab(4), "blue.200"],
+        ["report", "EditIcon", (e) => this.btnSetTab(5), "blue.200"],
       ],
     });
   }
 
-  btnHome = () => {
-    this.setBtnTab(0);
-  };
-
-  btnRecon = () => {
-    this.setBtnTab(1);
-  };
-
-  btnScan = () => {
-    this.setBtnTab(2);
-  };
-
-  btnUpgrade = () => {
-    this.setBtnTab(3);
-  };
-
-  btnReconnect = () => {
-    this.setBtnTab(4);
-  };
-
-  btnReport = () => {
-    this.setBtnTab(5);
+  btnSetTab = (num) => {
+    //console.log(num);
+    this.setBtnTab(num);
   };
 
   setBtnTab = (num) => {
@@ -67,7 +54,8 @@ class HomePage extends React.Component {
         menuItems[i][3] = "blue.200";
       }
       menuItems[num][3] = "blue";
-      this.setState({ menuItems: menuItems });
+      this.setState({ menuItems: menuItems, currentTab: num });
+      //this.forceUpdate();
     }
   };
 
@@ -99,6 +87,10 @@ class HomePage extends React.Component {
       },
     };
     return j;
+  };
+
+  onReportChange = (e) => {
+    this.setState({ report: e });
   };
 
   renderMenu = () => {
@@ -135,14 +127,14 @@ class HomePage extends React.Component {
         i: "vstack",
         spacing: "5",
         content: [
-          {
+          /*{
             i: "wrapitem",
             p: "2",
             content: {
               i: "vstack",
               content: [this.renderSelectNetwork()],
             },
-          },
+          },*/
 
           lstMenu,
         ],
@@ -152,7 +144,25 @@ class HomePage extends React.Component {
     return j;
   };
 
+  renderCurrentTab = (currentTab) => {
+    const { menuItems, report } = this.state;
+
+    if (currentTab == 5) {
+      return (
+        <ReactQuill
+          theme="snow"
+          value={report}
+          onChange={(e) => this.onReportChange(e)}
+        />
+      );
+    } else {
+      //console.log(this.state.currentTab);
+      return <p>current tab is {menuItems[currentTab]}</p>;
+    }
+  };
+
   render() {
+    const { report, currentTab } = this.state;
     var j = {
       content: [
         {
@@ -163,7 +173,7 @@ class HomePage extends React.Component {
               i: "box",
               h: "100vh",
               p: "4",
-              content: [{ i: "text", content: "yay" }],
+              content: this.renderCurrentTab(currentTab),
               flex: "1",
               bg: "#3395FF",
               boxShadow: "dark-lg",
@@ -172,7 +182,8 @@ class HomePage extends React.Component {
         },
       ],
     };
-    return <div>{cr.contentReader(j)}</div>;
+
+    return <div>{cr.contentReader(j)} </div>;
   }
 }
 
