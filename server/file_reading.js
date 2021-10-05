@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const unzipper = require("unzipper");
 
 async function read_csv(csv, skipfirst) {
   const readline = require("readline");
@@ -94,6 +95,10 @@ async function checkExist(path) {
   }
 }
 
+async function extractZip(p1, p2) {
+  await fs.createReadStream(p1).pipe(unzipper.Extract({ path: p2 }));
+}
+
 async function createFolder(dir) {
   //var dir = './tmp';
 
@@ -114,4 +119,5 @@ module.exports = {
   checkExist,
   createFolder,
   getDirectories,
+  extractZip,
 };

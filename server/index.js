@@ -4,6 +4,7 @@ const http = require("http");
 const app = express();
 const { encrypt, decrypt } = require("./crypto");
 const file_help = require("./file_reading");
+const prepare = require("./prepare");
 //const lstcve = require("./security_data/lstcve_db");
 
 var connectionCount = 0;
@@ -74,6 +75,7 @@ async function getNetworks() {
 var port = 1789;
 
 (async () => {
+  await prepare.prepareCpelookup();
   var server_http = http.createServer(app);
   await multiIoPass(server_http);
   var getFolders = await file_help.getDirectories(__dirname + "/networks/");
