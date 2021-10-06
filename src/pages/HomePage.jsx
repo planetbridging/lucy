@@ -26,6 +26,12 @@ chatSocket.on("test", function (data) {
   //console.log(de);
 });
 
+function SendSelectedNework(items) {
+  var j_t_s = JSON.stringify(items);
+  var e_e = sec.encrypt(sk, j_t_s);
+  chatSocket.emit("selectNetwork", e_e);
+}
+
 class HomePage extends React.Component {
   state = {
     menuItems: [],
@@ -64,6 +70,11 @@ class HomePage extends React.Component {
         lstNetworks = [de];
       }
       r.forceUpdate();
+    });
+
+    chatSocket.on("networkResults", function (data) {
+      var de = sec.decrypt(sk, data);
+      console.log(de);
     });
   };
 
@@ -182,7 +193,9 @@ class HomePage extends React.Component {
       );
     } else if (currentTab == 0) {
       //console.log(ws.lstNetworks);
-      return <SelectNetwork items={lstNetworks} />;
+      return (
+        <SelectNetwork items={lstNetworks} sendBack={SendSelectedNework} />
+      );
     } else {
       //console.log(this.state.currentTab);
       return <p>current tab is {menuItems[currentTab]}</p>;

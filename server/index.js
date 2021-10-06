@@ -44,6 +44,29 @@ async function multiIoPass(server) {
     var sendFolders = await getNetworks();
     var enSendFolders = encrypt(secretKey, sendFolders);
     io.emit("networks", enSendFolders);
+
+    socket.on("selectNetwork", async (msg) => {
+      try {
+        var de = decrypt(secretKey, msg);
+        var lst = JSON.parse(de);
+        console.log(lst);
+        for (var l in lst) {
+          //console.log(lst[l]);
+          var j = await getFilesInNetwork(lst[l]);
+          var e_e = encrypt(secretKey, j);
+          io.emit("networkResults", e_e);
+        }
+        /*for (var l in lst) {
+          var j = getFilesInNetwork(lst[l]);
+          
+          console.log(j);
+          //
+        }*/
+      } catch (e) {
+        console.log("selectNetwork");
+        console.log(e);
+      }
+    });
     //var socketId = socket.id;
     //var clientIp = socket.request.connection.remoteAddress;
 
@@ -70,6 +93,18 @@ async function getNetworks() {
   }
   data = data.substring(0, data.length - 1);
   return data;
+}
+
+async function getFilesInNetwork(path) {
+  var getSelectedFiles = await file_help.getFilesInFolder(
+    __dirname + "/networks/" + path
+  );
+  var lst = [];
+  for (var l in getSelectedFiles) {
+    lst.push(path + "/" + getSelectedFiles[l]);
+  }
+  var j_t_s = JSON.stringify(lst);
+  return j_t_s;
 }
 
 var port = 1789;

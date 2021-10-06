@@ -5,14 +5,15 @@ import * as dc from "../lucymode/src/templateGenerator/dynamicContent";
 class SelectNetwork extends React.Component {
   state = { selected: "nothing selected", lstNetwork: [] };
 
-  handleCallback = () => {
+  handleCallback = (sendBack) => {
     //const { lstChecked } = this.state;
     //this.setState({ lstDyn: dc.lstPanelIds, lstChecked: dc.lstCheck });
     this.forceUpdate();
     console.log("rerender page");
+    sendBack(dc.lstCheck[0].lst);
   };
 
-  renderSelectedButton = (items) => {
+  renderSelectedButton = (items, sendBack) => {
     console.log(items);
     var j = {
       i: "slidepanel",
@@ -31,7 +32,7 @@ class SelectNetwork extends React.Component {
         <dc.CheckList
           id="0"
           items={items}
-          parentCallback={this.handleCallback}
+          parentCallback={(e) => this.handleCallback(sendBack)}
         />
       ),
     };
@@ -56,7 +57,7 @@ class SelectNetwork extends React.Component {
             i: "flex",
             spacing: "4",
             content: [
-              this.renderSelectedButton(this.props.items),
+              this.renderSelectedButton(this.props.items, this.props.sendBack),
               {
                 i: "box",
                 p: "3",

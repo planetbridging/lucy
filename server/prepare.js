@@ -1,6 +1,7 @@
 const fs = require("fs");
 const http = require("https");
 const https = require("https");
+const readline = require("readline");
 
 const file_help = require("./file_reading");
 const getCve2eb = require("./cve2ed");
@@ -103,6 +104,7 @@ async function prepareCpelookup() {
 
     var tmp = await file_help.getLocalJson(p2);
     var root = tmp["CVE_Items"];
+    //console.log("reading " + p2);
     for (var r in root) {
       //console.log(root[r]["configurations"]["nodes"][0]["cpe_match"]);
       try {
@@ -127,8 +129,24 @@ async function prepareCpelookup() {
   var checklink = await file_help.checkExist(cvelink);
   if (!checklink) {
     lstCveLink = await getCve2eb.getTbl();
+    var tmpsave = fs.createWriteStream(cvelink, {
+      flags: "a", // 'a' means appending (old data will be preserved)
+    });
+    for (const [key, value] of lstCveLink.entries()) {
+      tmpsave.write(key + "," + value + "\n");
+    }
   } else {
+    require("fs")
+      .readFileSync(cvelink, "utf-8")
+      .split(/\r?\n/)
+      .forEach(function (line) {
+        if (line.includes(",")) {
+          var tsplit = line.split(",");
+          lstCveLink.set(tsplit[0], tsplit[1]);
+        }
+      });
   }
+  //console.log(lstCve);
 }
 
 module.exports = {
