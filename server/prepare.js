@@ -3,6 +3,8 @@ const http = require("https");
 const https = require("https");
 
 const file_help = require("./file_reading");
+const getCve2eb = require("./cve2ed");
+const e = require("cors");
 
 async function download(url, dest, cb) {
   const file = fs.createWriteStream(dest);
@@ -73,6 +75,9 @@ var years = [
   "2021",
 ];
 
+var lstCve = new Map();
+var lstCveLink = new Map();
+
 async function prepareCpelookup() {
   for (var i in years) {
     var p1 = __dirname + "/bewear/" + years[i] + ".zip";
@@ -95,6 +100,34 @@ async function prepareCpelookup() {
       file_help.extractZip(p1, __dirname + "/bewear/");
       console.log("extracted " + years[i]);
     }
+
+    var tmp = await file_help.getLocalJson(p2);
+    var root = tmp["CVE_Items"];
+    for (var r in root) {
+      //console.log(root[r]["configurations"]["nodes"][0]["cpe_match"]);
+      try {
+        var cpes = [];
+        var lstcpe = root[r]["configurations"]["nodes"][0]["cpe_match"];
+        for (var lcpe in lstcpe) {
+          var cpe = lstcpe[lcpe]["cpe23Uri"].replace("cpe:2.3:", "");
+          clean = cpe.split(":*").join("");
+          cpes.push(clean);
+        }
+        var cvssv2 = root[r]["impact"]["baseMetricV2"]["cvssV2"];
+        var cve = root[r]["cve"]["CVE_data_meta"]["ID"];
+        lstCve.set(cve, cpes);
+      } catch {
+        //console.log(root[r]["cve"]["CVE_data_meta"]["ID"]);
+      }
+    }
+    //console.log(lstCve);
+    //break;
+  }
+  var cvelink = __dirname + "/bewear/cve2eb.txt";
+  var checklink = await file_help.checkExist(cvelink);
+  if (!checklink) {
+    lstCveLink = await getCve2eb.getTbl();
+  } else {
   }
 }
 
