@@ -70,7 +70,6 @@ class SelectNetwork extends React.Component {
               { i: "box", content: checkeditems },
             ],
           },
-          flex: "1",
           bg: "#3395FF",
           boxShadow: "dark-lg",
         },

@@ -113,10 +113,16 @@ var port = 1789;
   await prepare.prepareCpelookup();
   var server_http = http.createServer(app);
   await multiIoPass(server_http);
-  var getFolders = await file_help.getDirectories(__dirname + "/networks/");
-  var getFiles = await file_help.getFilesInFolder(__dirname + "/networks/htb");
-  console.log(getFolders);
+  app.use(function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", "*"); // update to match the domain you will make the request from
+    res.header(
+      "Access-Control-Allow-Headers",
+      "Origin, X-Requested-With, Content-Type, Accept,authtoken"
+    );
+    next();
+  });
   app.use("/", express.static(__dirname + "/website"));
+  app.use("/", express.static(__dirname + "/networks"));
   server_http.listen(port, function () {
     console.log("server running at " + port);
   });

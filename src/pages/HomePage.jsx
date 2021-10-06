@@ -9,11 +9,13 @@ import * as ic from "@chakra-ui/icons";
 //import * as ws from "../WebSock";
 
 import SelectNetwork from "./home/SelectNetwork";
+import ShowComputers from "./home/ShowComputers";
 
 import io from "socket.io-client";
 import * as sec from "../crypto";
 var lstComputers = [];
 var lstNetworks = [];
+var lstXml = [];
 var sk = "";
 const chatSocket = io.connect("http://localhost:1789");
 
@@ -32,11 +34,18 @@ function SendSelectedNework(items) {
   chatSocket.emit("selectNetwork", e_e);
 }
 
+function loadProcessedXml(lst) {
+  for (var l in lst) {
+    console.log(lst[l]);
+  }
+}
+
 class HomePage extends React.Component {
   state = {
     menuItems: [],
     currentTab: 0,
     report: "hey hows it going<p>m</p><p>m</p>",
+    selectedXml: [],
   };
 
   componentDidMount() {
@@ -74,7 +83,13 @@ class HomePage extends React.Component {
 
     chatSocket.on("networkResults", function (data) {
       var de = sec.decrypt(sk, data);
-      console.log(de);
+      var j = JSON.parse(de);
+      for (var f in j) {
+        if (!lstXml.includes(j[f])) {
+          lstXml.push(j[f]);
+        }
+      }
+      r.forceUpdate();
     });
   };
 
@@ -192,10 +207,15 @@ class HomePage extends React.Component {
         />
       );
     } else if (currentTab == 0) {
-      //console.log(ws.lstNetworks);
-      return (
+      var ReactSN = (
         <SelectNetwork items={lstNetworks} sendBack={SendSelectedNework} />
       );
+      var ReactSC = (
+        <ShowComputers files={lstXml} sendBack={loadProcessedXml} />
+      );
+      var j = { i: "flex", content: [ReactSN, ReactSC] };
+
+      return <div>{cr.contentReader(j)}</div>;
     } else {
       //console.log(this.state.currentTab);
       return <p>current tab is {menuItems[currentTab]}</p>;
