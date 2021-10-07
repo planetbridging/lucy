@@ -10,7 +10,7 @@ class ShowComputers extends React.Component {
 
   processXml = (files, sendBack) => {
     for (var f in files) {
-      if (files[f].endsWith(".xml")) {
+      if (files[f].endsWith(".xml") && files[f].includes("nmap")) {
         this.getXmlScan(files[f], sendBack);
       }
     }
@@ -78,6 +78,26 @@ class ShowComputers extends React.Component {
               i: "text",
               fontSize: "xs",
               content: "Ports: " + lstpc[p].lstPorts.length,
+            },
+            {
+              i: "text",
+              fontSize: "xs",
+              content: "CVEs: " + lstpc[p].cveCount,
+            },
+            {
+              i: "text",
+              fontSize: "xs",
+              content: "CPEs: " + lstpc[p].cpeCount,
+            },
+            {
+              i: "text",
+              fontSize: "xs",
+              content: "Exploits: " + lstpc[p].lstExploits.length,
+            },
+            {
+              i: "text",
+              fontSize: "xs",
+              content: "MSFs: " + lstpc[p].lstMsf.length,
             },
           ],
         },

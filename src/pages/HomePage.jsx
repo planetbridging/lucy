@@ -186,13 +186,43 @@ class HomePage extends React.Component {
     this.setState({ report: e.target.value });
   };
 
+  renderBewear = () => {
+    var j = {
+      i: "center",
+      content: {
+        i: "hstack",
+        spacing: "5",
+        content: [
+          {
+            i: "button",
+            size: "xs",
+            colorScheme: "blue",
+            content: { i: "text", fontSize: "xs", content: "cpelookup" },
+          },
+          {
+            i: "button",
+            size: "xs",
+            colorScheme: "blue",
+            content: { i: "text", fontSize: "xs", content: "cvelookup" },
+          },
+          {
+            i: "button",
+            size: "xs",
+            colorScheme: "blue",
+            content: { i: "text", fontSize: "xs", content: "msflookup" },
+          },
+        ],
+      },
+    };
+    return j;
+  };
+
   renderMenu = () => {
     const { menuItems } = this.state;
     var lstMenu = [];
     for (var i in menuItems) {
       lstMenu.push({
         i: "button",
-
         onClick: menuItems[i][2],
         colorScheme: menuItems[i][3],
         size: "sm",
@@ -220,18 +250,7 @@ class HomePage extends React.Component {
       content: {
         i: "hstack",
         spacing: "5",
-        content: [
-          /*{
-            i: "wrapitem",
-            p: "2",
-            content: {
-              i: "vstack",
-              content: [this.renderSelectNetwork()],
-            },
-          },*/
-
-          lstMenu,
-        ],
+        content: [lstMenu],
         w: "95vw",
       },
     };
@@ -323,6 +342,13 @@ class HomePage extends React.Component {
                 boxShadow: "base",
                 rounded: "sm",
                 content: this.renderMenu(),
+              },
+              {
+                i: "box",
+                w: "100vw",
+                boxShadow: "base",
+                rounded: "sm",
+                content: this.renderBewear(),
               },
               {
                 i: "box",
