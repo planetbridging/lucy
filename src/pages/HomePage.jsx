@@ -13,6 +13,7 @@ import ShowComputers from "./home/ShowComputers";
 
 import io from "socket.io-client";
 import * as sec from "../crypto";
+var lstNmapDone = new Map();
 var lstComputers = [];
 var lstNetworks = [];
 var lstXml = [];
@@ -32,12 +33,6 @@ function SendSelectedNework(items) {
   var j_t_s = JSON.stringify(items);
   var e_e = sec.encrypt(sk, j_t_s);
   chatSocket.emit("selectNetwork", e_e);
-}
-
-function loadProcessedXml(lst) {
-  for (var l in lst) {
-    console.log(lst[l]);
-  }
 }
 
 class HomePage extends React.Component {
@@ -61,6 +56,43 @@ class HomePage extends React.Component {
     });
     this.listeners();
   }
+
+  loadProcessedXml = (lst, file) => {
+    //console.log(file);
+    if (!lstNmapDone.has(file)) {
+      lstNmapDone.set(file);
+      if (lstComputers.length == 0) {
+        lstComputers = lst;
+      } else {
+        for (var l in lst) {
+          var found = false;
+          var lstnic = lst[l].hostAddress;
+          //console.log(lstnic);
+          for (var newnic in lstnic) {
+            for (var pc in lstComputers) {
+              for (var nic in lstComputers[pc].hostAddress) {
+                if (lstComputers[pc] == lstnic[newnic]) {
+                  found = true;
+                  break;
+                }
+              }
+              if (found) {
+                break;
+              }
+            }
+            if (found) {
+              break;
+            }
+          }
+          if (!found) {
+            lstComputers.push(lst[l]);
+          }
+        }
+        //console.log(lstComputers);
+        this.forceUpdate();
+      }
+    }
+  };
 
   listeners = () => {
     //var { lstNetworks } = this.state;
@@ -211,7 +243,11 @@ class HomePage extends React.Component {
         <SelectNetwork items={lstNetworks} sendBack={SendSelectedNework} />
       );
       var ReactSC = (
-        <ShowComputers files={lstXml} sendBack={loadProcessedXml} />
+        <ShowComputers
+          files={lstXml}
+          sendBack={this.loadProcessedXml}
+          lstComputers={lstComputers}
+        />
       );
       var j = { i: "flex", content: [ReactSN, ReactSC] };
 

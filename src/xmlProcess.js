@@ -1,7 +1,7 @@
 import xml2js from "xml2js";
 import * as objs from "./nmapObjs";
 
-export async function parseXML(data) {
+export async function parseXML(data, file) {
   return new Promise((resolve) => {
     var lstHosts = [];
     var parser = new xml2js.Parser({
@@ -30,7 +30,7 @@ export async function parseXML(data) {
               addy = new objs.objNic(host["address"][0]["$"]["addr"], "", "");
             } catch {}
           }
-          let newHost = new objs.objComputer(hostName, addy);
+          let newHost = new objs.objComputer(hostName, addy, file);
           var found_ports = false;
           for (var hostp in host["ports"]) {
             for (var hostport in host["ports"][hostp]["port"]) {

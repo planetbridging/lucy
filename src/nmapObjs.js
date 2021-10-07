@@ -1,5 +1,5 @@
 export class objComputer {
-  constructor(hostname, hostAddress) {
+  constructor(hostname, hostAddress, file) {
     this.hostname = hostname;
     this.hostAddress = hostAddress;
     this.lstCpe = [];
@@ -8,6 +8,7 @@ export class objComputer {
     this.lstPorts = [];
     this.lstExploits = [];
     this.lstMsf = [];
+    this.file = file;
   }
 }
 

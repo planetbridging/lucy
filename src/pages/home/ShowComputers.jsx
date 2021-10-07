@@ -3,6 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 import * as cr from "../lucymode/src/templateGenerator/contentReader";
 import * as dl from "../../dl";
 import * as xmlP from "../../xmlProcess";
+import FileViewer from "../../FileViewer";
+import PCViewer from "../../PCViewer";
 class ShowComputers extends React.Component {
   state = { lstNetwork: [] };
 
@@ -16,12 +18,68 @@ class ShowComputers extends React.Component {
 
   getXmlScan = async (file, sendBack) => {
     var xml = await dl.getLink("http://localhost:1789/" + file);
-    var lstcomputers = await xmlP.parseXML(xml);
-    sendBack(lstcomputers);
+    var lstcomputers = await xmlP.parseXML(xml, file);
+    sendBack(lstcomputers, file);
+  };
+
+  renderFileViewer = (file) => {
+    var j = {
+      i: "slidepanel",
+      side: "top",
+      size: "full",
+      btn1content: {
+        i: "text",
+        fontSize: "xs",
+        content: "File: " + file,
+      },
+      btn1colorScheme: "blue",
+      btn2content: "Back",
+      btn2colorScheme: "blue",
+      content: <FileViewer path={file} />,
+      title: file,
+    };
+    return j;
+  };
+
+  renderComputers = (lstpc) => {
+    var lst = [];
+    console.log(lstpc);
+    for (var p in lstpc) {
+      lst.push({
+        i: "wrapitem",
+        content: {
+          i: "box",
+          p: "4",
+          bg: "#2770BF",
+          boxShadow: "dark-lg",
+          content: [
+            this.renderFileViewer(lstpc[p].file),
+            {
+              i: "slidepanel",
+              side: "top",
+              size: "full",
+              btn1content: {
+                i: "text",
+                fontSize: "xs",
+                content: "IP: " + lstpc[p].hostAddress.ip,
+              },
+              btn1colorScheme: "blue",
+              btn2content: "Back",
+              btn2colorScheme: "blue",
+              content: <PCViewer pc={lstpc[p]} />,
+              title: lstpc[p].hostAddress.ip,
+            },
+          ],
+        },
+      });
+      //console.log(lstpc[p].hostAddress.ip);
+    }
+    return { i: "wrap", content: lst };
   };
 
   render() {
     var files = this.props.files;
+    var lstComputers = this.props.lstComputers;
     this.processXml(files, this.props.sendBack);
     var j = {
       content: [
@@ -29,20 +87,41 @@ class ShowComputers extends React.Component {
           i: "box",
           p: "4",
           content: {
-            i: "flex",
-            spacing: "4",
+            i: "vstack",
             content: [
               {
+                i: "flex",
+                spacing: "4",
+                content: [
+                  {
+                    i: "box",
+                    p: "3",
+                    content: {
+                      i: "text",
+                      content: {
+                        i: "hstack",
+                        spacing: "10",
+                        content: [
+                          { i: "text", content: "File count: " + files.length },
+                          {
+                            i: "text",
+                            content: "Computer count: " + lstComputers.length,
+                          },
+                        ],
+                      },
+                      color: "white",
+                    },
+                  },
+                ],
+              },
+              {
                 i: "box",
-                p: "3",
-                content: {
-                  i: "text",
-                  content: "File count: " + files.length,
-                  color: "white",
-                },
+
+                content: this.renderComputers(lstComputers),
               },
             ],
           },
+
           bg: "#3395FF",
           boxShadow: "dark-lg",
         },
