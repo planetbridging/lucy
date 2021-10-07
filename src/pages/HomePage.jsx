@@ -1,11 +1,18 @@
 import React from "react";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
+/*import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";*/
+
+import ContentEditable from "react-contenteditable";
+import { asBlob } from "html-docx-js-typescript";
+// if you want to save the docx file, you need import 'file-saver'
+import { saveAs } from "file-saver";
 
 import * as sc from "./lucymode/src/templateGenerator/staticContent";
 import * as dc from "./lucymode/src/templateGenerator/dynamicContent";
 import * as cr from "./lucymode/src/templateGenerator/contentReader";
+import * as gen from "../generateReport";
 import * as ic from "@chakra-ui/icons";
+
 //import * as ws from "../WebSock";
 
 import SelectNetwork from "./home/SelectNetwork";
@@ -17,6 +24,7 @@ var lstNmapDone = new Map();
 var lstComputers = [];
 var lstNetworks = [];
 var lstXml = [];
+var lstSelectedNetworks = [];
 var sk = "";
 const chatSocket = io.connect("http://localhost:1789");
 
@@ -29,17 +37,11 @@ chatSocket.on("test", function (data) {
   //console.log(de);
 });
 
-function SendSelectedNework(items) {
-  var j_t_s = JSON.stringify(items);
-  var e_e = sec.encrypt(sk, j_t_s);
-  chatSocket.emit("selectNetwork", e_e);
-}
-
 class HomePage extends React.Component {
   state = {
     menuItems: [],
     currentTab: 0,
-    report: "hey hows it going<p>m</p><p>m</p>",
+    report: "loading",
     selectedXml: [],
   };
 
@@ -92,6 +94,14 @@ class HomePage extends React.Component {
         this.forceUpdate();
       }
     }
+  };
+
+  SendSelectedNework = (items) => {
+    var j_t_s = JSON.stringify(items);
+    var e_e = sec.encrypt(sk, j_t_s);
+    chatSocket.emit("selectNetwork", e_e);
+    lstSelectedNetworks = items;
+    this.forceUpdate();
   };
 
   listeners = () => {
@@ -173,7 +183,7 @@ class HomePage extends React.Component {
   };
 
   onReportChange = (e) => {
-    this.setState({ report: e });
+    this.setState({ report: e.target.value });
   };
 
   renderMenu = () => {
@@ -227,20 +237,57 @@ class HomePage extends React.Component {
     return j;
   };
 
+  btnGenerate = () => {
+    var data = gen.generator(lstComputers, lstSelectedNetworks);
+    this.setState({ report: data });
+  };
+
+  btnExport = () => {
+    this.exportData();
+  };
+
+  exportData = async () => {
+    const { report } = this.state;
+    asBlob(report).then((data) => {
+      saveAs(data, "file.docx"); // save as docx file
+    });
+  };
+
   renderCurrentTab = (currentTab, lstNetworks) => {
     const { menuItems, report } = this.state;
 
     if (currentTab == 5) {
+      console.log("reloaded");
+
+      var j = {
+        i: "flex",
+        content: [
+          { i: "button", content: "Generate", onClick: this.btnGenerate },
+          { i: "button", content: "Export", onClick: this.btnExport },
+        ],
+      };
       return (
+        <div>
+          {cr.contentReader(j)}
+          <ContentEditable
+            innerRef={this.contentEditable}
+            html={report} // innerHTML of the editable div
+            disabled={false} // use true to disable editing
+            onChange={(e) => this.onReportChange(e)} // handle innerHTML change
+            tagName="article" // Use a custom HTML tag (uses a div by default)
+          />
+        </div>
+      );
+      /*return (
         <ReactQuill
           theme="snow"
-          value={report}
-          onChange={(e) => this.onReportChange(e)}
+          value={data}
+          
         />
-      );
+      );*/
     } else if (currentTab == 0) {
       var ReactSN = (
-        <SelectNetwork items={lstNetworks} sendBack={SendSelectedNework} />
+        <SelectNetwork items={lstNetworks} sendBack={this.SendSelectedNework} />
       );
       var ReactSC = (
         <ShowComputers
