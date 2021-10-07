@@ -192,6 +192,7 @@ class HomePage extends React.Component {
     for (var i in menuItems) {
       lstMenu.push({
         i: "button",
+
         onClick: menuItems[i][2],
         colorScheme: menuItems[i][3],
         size: "sm",
@@ -217,7 +218,7 @@ class HomePage extends React.Component {
     var j = {
       i: "center",
       content: {
-        i: "vstack",
+        i: "hstack",
         spacing: "5",
         content: [
           /*{
@@ -311,19 +312,28 @@ class HomePage extends React.Component {
     var j = {
       content: [
         {
-          i: "flex",
-          content: [
-            { i: "box", content: this.renderMenu(), bg: "#222994" },
-            {
-              i: "box",
-              h: "100vh",
-              p: "4",
-              content: this.renderCurrentTab(currentTab, lstNetworks),
-              flex: "1",
-              bg: "#3395FF",
-              boxShadow: "dark-lg",
-            },
-          ],
+          i: "box",
+          bg: "#3395FF",
+          content: {
+            i: "vstack",
+            content: [
+              {
+                i: "box",
+                w: "100vw",
+                boxShadow: "base",
+                rounded: "sm",
+                content: this.renderMenu(),
+              },
+              {
+                i: "box",
+                w: "100vw",
+                p: "4",
+                content: this.renderCurrentTab(currentTab, lstNetworks),
+                flex: "1",
+                bg: "#3395FF",
+              },
+            ],
+          },
         },
       ],
     };

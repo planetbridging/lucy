@@ -6,8 +6,11 @@ import * as cr from "./pages/lucymode/src/templateGenerator/contentReader";
 
 import * as dl from "./dl";
 class PCViewer extends React.Component {
-  state = { pc: null };
-
+  state = { pc: null, test: 0 };
+  componentDidMount() {
+    var r = Math.random();
+    this.setState({ test: r });
+  }
   renderPorts = (lstPorts) => {
     var j = [];
     j.push({ i: "text", content: "Ports" });

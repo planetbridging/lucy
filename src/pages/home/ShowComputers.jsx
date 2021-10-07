@@ -41,6 +41,25 @@ class ShowComputers extends React.Component {
     return j;
   };
 
+  renderPcViewer = (pc) => {
+    var j = {
+      i: "slidepanel",
+      side: "top",
+      size: "full",
+      btn1content: {
+        i: "text",
+        fontSize: "xs",
+        content: "IP: " + pc.hostAddress.ip,
+      },
+      btn1colorScheme: "blue",
+      btn2content: "Back",
+      btn2colorScheme: "blue",
+      content: <PCViewer pc={pc} />,
+      title: pc.hostAddress.ip,
+    };
+    return j;
+  };
+
   renderComputers = (lstpc) => {
     var lst = [];
     console.log(lstpc);
@@ -54,20 +73,11 @@ class ShowComputers extends React.Component {
           boxShadow: "dark-lg",
           content: [
             this.renderFileViewer(lstpc[p].file),
+            this.renderPcViewer(lstpc[p]),
             {
-              i: "slidepanel",
-              side: "top",
-              size: "full",
-              btn1content: {
-                i: "text",
-                fontSize: "xs",
-                content: "IP: " + lstpc[p].hostAddress.ip,
-              },
-              btn1colorScheme: "blue",
-              btn2content: "Back",
-              btn2colorScheme: "blue",
-              content: <PCViewer pc={lstpc[p]} />,
-              title: lstpc[p].hostAddress.ip,
+              i: "text",
+              fontSize: "xs",
+              content: "Ports: " + lstpc[p].lstPorts.length,
             },
           ],
         },

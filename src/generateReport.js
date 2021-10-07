@@ -1,6 +1,6 @@
 export function generator(lstComputers, selected) {
   var html = "";
-  html += "<h1>" + selected + "</h1>\n";
+  html += "<h1>" + selected + "</h1>";
   var tbl = "<table>";
   tbl += "<tr>";
   tbl += "<td>#</td>";
@@ -10,7 +10,7 @@ export function generator(lstComputers, selected) {
   tbl += "<td>Cve</td>";
   tbl += "<td>Exploits</td>";
   tbl += "<td>Msf</td>";
-  tbl += "</tr>\n";
+  tbl += "</tr>";
   for (var c in lstComputers) {
     tbl += "<tr>";
     tbl += "<td>" + c + "</td>";
@@ -20,12 +20,40 @@ export function generator(lstComputers, selected) {
     tbl += "<td>" + lstComputers[c].cveCount + "</td>";
     tbl += "<td>" + lstComputers[c].lstExploits.length + "</td>";
     tbl += "<td>" + lstComputers[c].lstMsf.length + "</td>";
-    tbl += "</tr>\n";
+    tbl += "</tr>";
   }
   tbl += "</table>";
   html += tbl;
-
+  for (var c in lstComputers) {
+    html += "<p>" + lstComputers[c].hostAddress.ip + "</p>";
+    html += getPorts(lstComputers[c]);
+  }
   return html;
+}
+
+function getPorts(pc) {
+  var tbl = "<table>";
+  tbl += "<tr>";
+  tbl += "<td  colspan='2'>Port count</td>";
+  tbl += "<td  colspan='2'>" + pc.lstPorts.length + "</td>";
+  tbl += "</tr>\n";
+  for (var c in pc.lstPorts) {
+    tbl += "<tr>";
+    tbl += "<td>" + c + "</td>";
+    tbl += "<td colspan='2'>" + pc.lstPorts[c].portid + "</td>";
+    tbl += "<td colspan='2'>" + pc.lstPorts[c].protocol + "</td>";
+    tbl += "</tr>\n";
+    for (var s in pc.lstPorts[c].service) {
+      tbl += "<tr>";
+      tbl += "<td>" + pc.lstPorts[c].service[s].name + "</td>";
+      tbl += "<td>" + pc.lstPorts[c].service[s].product + "</td>";
+      tbl += "<td>" + pc.lstPorts[c].service[s].version + "</td>";
+      tbl += "<td>" + pc.lstPorts[c].service[s].cpe + "</td>";
+      tbl += "</tr>";
+    }
+  }
+  tbl += "</table>";
+  return tbl;
 }
 
 /*
