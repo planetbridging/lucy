@@ -45,6 +45,10 @@ async function multiIoPass(server) {
     var enSendFolders = encrypt(secretKey, sendFolders);
     io.emit("networks", enSendFolders);
 
+    var lstCpe = prepare.exportLstCpeDictionary();
+    var e_lstCpe = encrypt(secretKey, lstCpe);
+    io.emit("lstcpe", e_lstCpe);
+
     socket.on("selectNetwork", async (msg) => {
       try {
         var de = decrypt(secretKey, msg);

@@ -17,10 +17,12 @@ import * as ic from "@chakra-ui/icons";
 
 import SelectNetwork from "./home/SelectNetwork";
 import ShowComputers from "./home/ShowComputers";
+import Cpelookup from "./bewear/cpelookup";
 
 import io from "socket.io-client";
 import * as sec from "../crypto";
 var lstNmapDone = new Map();
+var lstCpe = new Map();
 var lstComputers = [];
 var lstNetworks = [];
 var lstXml = [];
@@ -43,6 +45,7 @@ class HomePage extends React.Component {
     currentTab: 0,
     report: "loading",
     selectedXml: [],
+    cpeSearch: "",
   };
 
   componentDidMount() {
@@ -58,6 +61,28 @@ class HomePage extends React.Component {
     });
     this.listeners();
   }
+
+  findCpe = (cpe) => {
+    var lst = [];
+    if (lstCpe.has(cpe)) {
+      lst.push(cpe);
+    } else {
+      var limit = 15;
+      var count = 0;
+      for (const [key, value] of lstCpe.entries()) {
+        if (count <= limit) {
+          if (key.includes(cpe)) {
+            lst.push(key);
+            count += 1;
+          }
+        } else {
+          break;
+        }
+      }
+    }
+
+    return lst;
+  };
 
   loadProcessedXml = (lst, file) => {
     //console.log(file);
@@ -133,6 +158,15 @@ class HomePage extends React.Component {
       }
       r.forceUpdate();
     });
+
+    chatSocket.on("lstcpe", function (data) {
+      var de = sec.decrypt(sk, data);
+      var j = JSON.parse(de);
+      for (var i in j) {
+        lstCpe.set(j[i]);
+      }
+      r.forceUpdate();
+    });
   };
 
   btnSetTab = (num) => {
@@ -150,6 +184,14 @@ class HomePage extends React.Component {
       this.setState({ menuItems: menuItems, currentTab: num });
       //this.forceUpdate();
     }
+  };
+
+  setLookup = (num) => {
+    const { menuItems } = this.state;
+    for (var i in menuItems) {
+      menuItems[i][3] = "blue.200";
+    }
+    this.setState({ menuItems: menuItems, currentTab: num });
   };
 
   renderSelectNetwork = () => {
@@ -198,18 +240,21 @@ class HomePage extends React.Component {
             size: "xs",
             colorScheme: "blue",
             content: { i: "text", fontSize: "xs", content: "cpelookup" },
+            onClick: (e) => this.setLookup(6),
           },
           {
             i: "button",
             size: "xs",
             colorScheme: "blue",
             content: { i: "text", fontSize: "xs", content: "cvelookup" },
+            onClick: (e) => this.setLookup(7),
           },
           {
             i: "button",
             size: "xs",
             colorScheme: "blue",
             content: { i: "text", fontSize: "xs", content: "msflookup" },
+            onClick: (e) => this.setLookup(8),
           },
         ],
       },
@@ -305,6 +350,12 @@ class HomePage extends React.Component {
           
         />
       );*/
+    } else if (currentTab == 6) {
+      return <Cpelookup sendBack={this.findCpe} />;
+    } else if (currentTab == 7) {
+      return <div>cvelookup</div>;
+    } else if (currentTab == 8) {
+      return <div>msflookup</div>;
     } else if (currentTab == 0) {
       var ReactSN = (
         <SelectNetwork items={lstNetworks} sendBack={this.SendSelectedNework} />

@@ -87,7 +87,7 @@ class ShowComputers extends React.Component {
             {
               i: "text",
               fontSize: "xs",
-              content: "CPEs: " + lstpc[p].cpeCount,
+              content: "CPEs: " + lstpc[p].lstCpe.length,
             },
             {
               i: "text",
@@ -108,6 +108,15 @@ class ShowComputers extends React.Component {
   };
 
   render() {
+    /*{
+      i: "button",
+      colorScheme: "blue",
+      content: {
+        i: "text",
+        content: "Find exploits",
+        fontSize: "xs",
+      },
+    },*/
     var files = this.props.files;
     var lstComputers = this.props.lstComputers;
     this.processXml(files, this.props.sendBack);

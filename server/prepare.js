@@ -7,6 +7,13 @@ const file_help = require("./file_reading");
 const getCve2eb = require("./cve2ed");
 const e = require("cors");
 
+class objCve {
+  constructor(lstCpe, attackType) {
+    this.attackType = attackType;
+    this.lstCpe = lstCpe;
+  }
+}
+
 async function download(url, dest, cb) {
   const file = fs.createWriteStream(dest);
 
@@ -78,6 +85,45 @@ var years = [
 
 var lstCve = new Map();
 var lstCveLink = new Map();
+var lstCpeDictionary = new Map();
+
+var lstAttackTypes = [
+  "buffer overflow",
+  "denial of service",
+  "heap overflow",
+  "sql injection",
+  "remote attackers to execute",
+  "directory traversal vulnerability",
+  "remote attackers to read",
+  "xss",
+  "cross-site scripting",
+  "cross site scripting",
+  "allows remote attackers to inject",
+  "allows remote authenticated",
+  "allows remote attackers to use a certificate",
+  "stack-based buffer overflow",
+  "stack based buffer overflow",
+  "allows local users to bypass",
+  "allows local users to obtain",
+  "cross-site request",
+  "cross site request",
+  "allows local users to expose",
+  "allows remote attackers to gain root",
+  "allows remote attackers to monitor",
+  "allows remote attackers to trick",
+  "allows remote attackers to view",
+  "heap corruption",
+  "allows local users to gain privileges",
+  "allows local users to overwrite",
+  "allows remote attackers to trigger memory corruption or possibly execute",
+  "possibly execute",
+  "allow remote attackers to modify",
+  "privilege escalation",
+  "remote attacker",
+  "remote bypass",
+  "remote code execution",
+  "elevation of privilege",
+];
 
 async function prepareCpelookup() {
   for (var i in years) {
@@ -114,10 +160,48 @@ async function prepareCpelookup() {
           var cpe = lstcpe[lcpe]["cpe23Uri"].replace("cpe:2.3:", "");
           clean = cpe.split(":*").join("");
           cpes.push(clean);
+          lstCpeDictionary.set(clean);
         }
         var cvssv2 = root[r]["impact"]["baseMetricV2"]["cvssV2"];
+        var accessVector = cvssv2["cvssv2"];
+        var integrityImpact = cvssv2["integrityImpact"];
+        var accessComplexity = cvssv2["accessComplexity"];
+        var authentication = cvssv2["authentication"];
+        var confidentialityImpact = cvssv2["confidentialityImpact"];
+        var availabilityImpact = cvssv2["availabilityImpact"];
+        var baseScore = cvssv2["baseScore"];
         var cve = root[r]["cve"]["CVE_data_meta"]["ID"];
-        lstCve.set(cve, cpes);
+        var desc =
+          root[r]["cve"]["description"]["description_data"][0]["value"];
+        /*var cvesave = __dirname + "/website/security/nvd/" + cve + ".json";
+        var checklocation = await file_help.checkExist(cvesave);
+        if (!checklocation) {
+          try {
+            var jdatasace = {
+              accessVector: accessVector,
+              integrityImpact: integrityImpact,
+              accessComplexity: accessComplexity,
+              authentication: authentication,
+              confidentialityImpact: confidentialityImpact,
+              availabilityImpact: availabilityImpact,
+              baseScore: baseScore,
+              cve: cve,
+              desc: desc,
+            };
+            await file_help.appendToFile(JSON.stringify(jdatasace), cvesave);
+          } catch {
+            console.log(cve);
+          }
+        }*/
+        var attackType = "not found";
+        for (var at in lstAttackTypes) {
+          if (desc.toLowerCase().includes(lstAttackTypes[at])) {
+            attackType += lstAttackTypes[at] + ",";
+            //break;
+          }
+        }
+        var tmpobjCve = new objCve(cpes, attackType);
+        lstCve.set(cve, tmpobjCve);
       } catch {
         //console.log(root[r]["cve"]["CVE_data_meta"]["ID"]);
       }
@@ -149,8 +233,17 @@ async function prepareCpelookup() {
   //console.log(lstCve);
 }
 
+function exportLstCpeDictionary() {
+  var lst = [];
+  for (const [key, value] of lstCpeDictionary.entries()) {
+    lst.push(key);
+  }
+  return JSON.stringify(lst);
+}
+
 module.exports = {
   download,
   anotherDownload,
   prepareCpelookup,
+  exportLstCpeDictionary,
 };

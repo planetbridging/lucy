@@ -9,6 +9,7 @@ export class objComputer {
     this.lstExploits = [];
     this.lstMsf = [];
     this.file = file;
+    this.findExploits = false;
   }
 }
 
