@@ -23,6 +23,7 @@ import io from "socket.io-client";
 import * as sec from "../crypto";
 var lstNmapDone = new Map();
 var lstCpe = new Map();
+var lstExploits = new Map();
 var lstComputers = [];
 var lstNetworks = [];
 var lstXml = [];
@@ -46,6 +47,8 @@ class HomePage extends React.Component {
     report: "loading",
     selectedXml: [],
     cpeSearch: "",
+    lstCpeLoaded: false,
+    lstExploitsLoaded: false,
   };
 
   componentDidMount() {
@@ -165,6 +168,19 @@ class HomePage extends React.Component {
       for (var i in j) {
         lstCpe.set(j[i]);
       }
+      //console.log(lstCpe);
+      r.setState({ lstCpeLoaded: true });
+      r.forceUpdate();
+    });
+
+    chatSocket.on("lstexploits", function (data) {
+      var de = sec.decrypt(sk, data);
+      var j = JSON.parse(de);
+      for (var i in j) {
+        lstExploits.set(j[i]["id"], j[i]["lstcve"]);
+      }
+      //console.log(lstExploits);
+      r.setState({ lstExploitsLoaded: true });
       r.forceUpdate();
     });
   };
@@ -377,8 +393,53 @@ class HomePage extends React.Component {
   };
 
   render() {
-    const { report, currentTab } = this.state;
-
+    const { report, currentTab, lstExploitsLoaded, lstCpeLoaded } = this.state;
+    var loaded = {
+      i: "box",
+      w: "100vw",
+      p: "4",
+      content: this.renderCurrentTab(currentTab, lstNetworks),
+      flex: "1",
+      bg: "#3395FF",
+    };
+    var lstexploitsstatus = {
+      i: "box",
+      w: "100vw",
+      p: "4",
+      content: {
+        i: "center",
+        content: {
+          i: "text",
+          content: "lstexploits loading status: " + lstExploitsLoaded,
+        },
+      },
+      flex: "1",
+      bg: "#3395FF",
+    };
+    var lstcpestatus = {
+      i: "box",
+      w: "100vw",
+      p: "4",
+      content: {
+        i: "center",
+        content: {
+          i: "text",
+          content: "lstcpe loading status: " + lstCpeLoaded,
+        },
+      },
+      flex: "1",
+      bg: "#3395FF",
+    };
+    if (!lstExploitsLoaded || !lstCpeLoaded) {
+      loaded = {
+        i: "box",
+        w: "100vw",
+        p: "4",
+        content: [lstcpestatus, lstexploitsstatus],
+        flex: "1",
+        bg: "#3395FF",
+      };
+    }
     var j = {
       content: [
         {
@@ -401,14 +462,7 @@ class HomePage extends React.Component {
                 rounded: "sm",
                 content: this.renderBewear(),
               },
-              {
-                i: "box",
-                w: "100vw",
-                p: "4",
-                content: this.renderCurrentTab(currentTab, lstNetworks),
-                flex: "1",
-                bg: "#3395FF",
-              },
+              loaded,
             ],
           },
         },

@@ -87,6 +87,9 @@ var lstCve = new Map();
 var lstCveLink = new Map();
 var lstCpeDictionary = new Map();
 
+var lstCpeString = "";
+var lstExploitsString = "";
+
 var lstAttackTypes = [
   "buffer overflow",
   "denial of service",
@@ -209,16 +212,17 @@ async function prepareCpelookup() {
     //console.log(lstCve);
     //break;
   }
-  var cvelink = __dirname + "/bewear/cve2eb.txt";
+
+  var cvelink = __dirname + "/bewear/missinglink.csv";
   var checklink = await file_help.checkExist(cvelink);
   if (!checklink) {
-    lstCveLink = await getCve2eb.getTbl();
+    /*lstCveLink = await getCve2eb.getTbl();
     var tmpsave = fs.createWriteStream(cvelink, {
       flags: "a", // 'a' means appending (old data will be preserved)
     });
     for (const [key, value] of lstCveLink.entries()) {
       tmpsave.write(key + "," + value + "\n");
-    }
+    }*/
   } else {
     require("fs")
       .readFileSync(cvelink, "utf-8")
@@ -226,11 +230,26 @@ async function prepareCpelookup() {
       .forEach(function (line) {
         if (line.includes(",")) {
           var tsplit = line.split(",");
-          lstCveLink.set(tsplit[0], tsplit[1]);
+          var tmplstcve = [];
+          if (tsplit[1].includes("[]")) {
+            var spl = tsplit[1].split("[]");
+            for (var i in spl) {
+              var clean = spl[i].trim();
+              if (clean != "") {
+                tmplstcve.push(clean);
+              }
+            }
+          }
+          if (tmplstcve.length > 0) {
+            lstCveLink.set(tsplit[0], tmplstcve);
+          }
         }
       });
+    // console.log(lstCveLink);
   }
   //console.log(lstCve);
+  lstCpeString = exportLstCpeDictionary();
+  lstExploitsString = exportExploitLst();
 }
 
 function exportLstCpeDictionary() {
@@ -241,9 +260,26 @@ function exportLstCpeDictionary() {
   return JSON.stringify(lst);
 }
 
+function exportExploitLst() {
+  var lst = [];
+  for (const [key, value] of lstCveLink.entries()) {
+    lst.push({ id: key, lstcve: value });
+  }
+  return JSON.stringify(lst);
+}
+
+function getLstExploitsString() {
+  return lstExploitsString;
+}
+
+function getLstCpeString() {
+  return lstCpeString;
+}
+
 module.exports = {
   download,
   anotherDownload,
   prepareCpelookup,
-  exportLstCpeDictionary,
+  getLstExploitsString,
+  getLstCpeString,
 };

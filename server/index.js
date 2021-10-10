@@ -45,9 +45,13 @@ async function multiIoPass(server) {
     var enSendFolders = encrypt(secretKey, sendFolders);
     io.emit("networks", enSendFolders);
 
-    var lstCpe = prepare.exportLstCpeDictionary();
+    var lstCpe = prepare.getLstCpeString();
     var e_lstCpe = encrypt(secretKey, lstCpe);
     io.emit("lstcpe", e_lstCpe);
+
+    var lstExploits = prepare.getLstExploitsString();
+    var e_lstExploits = encrypt(secretKey, lstExploits);
+    io.emit("lstexploits", e_lstExploits);
 
     socket.on("selectNetwork", async (msg) => {
       try {
@@ -60,28 +64,11 @@ async function multiIoPass(server) {
           var e_e = encrypt(secretKey, j);
           io.emit("networkResults", e_e);
         }
-        /*for (var l in lst) {
-          var j = getFilesInNetwork(lst[l]);
-          
-          console.log(j);
-          //
-        }*/
       } catch (e) {
         console.log("selectNetwork");
         console.log(e);
       }
     });
-    //var socketId = socket.id;
-    //var clientIp = socket.request.connection.remoteAddress;
-
-    //console.log(socket.request.connection);
-
-    /*var i = 0;
-    while (i < 100) {
-      io.emit("setup", i);
-      await sleep(1000);
-      i++;
-    }*/
   });
 
   io.on("disconnect", () => {
