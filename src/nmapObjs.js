@@ -37,3 +37,31 @@ export class objService {
     this.cpe = cpe;
   }
 }
+
+export class objManager {
+  constructor(lstCpe, lstExploits, lstCveCpe) {
+    this.lstCpe = lstCpe;
+    this.lstExploits = lstExploits;
+    this.lstCveCpe = lstCveCpe;
+  }
+
+  searchCpe(cpe) {
+    var lst = [];
+    if (this.lstCpe.has(cpe)) {
+      var found = new Map();
+      for (const [key, value] of this.lstCveCpe.entries()) {
+        if (value[1].includes(cpe)) {
+          found.set(key, value[0]);
+        }
+      }
+      for (const [key, value] of this.lstExploits.entries()) {
+        for (var i in value) {
+          if (found.has(value[i])) {
+            lst.push([key, value, found.get(value[i])]);
+          }
+        }
+      }
+    }
+    return lst;
+  }
+}

@@ -197,13 +197,14 @@ async function prepareCpelookup() {
             console.log(cve);
           }
         }*/
-        var attackType = "not found";
+        var attackType = "";
         for (var at in lstAttackTypes) {
           if (desc.toLowerCase().includes(lstAttackTypes[at])) {
             attackType += lstAttackTypes[at] + ",";
             //break;
           }
         }
+
         var tmpobjCve = new objCve(cpes, attackType);
         lstCve.set(cve, tmpobjCve);
       } catch {

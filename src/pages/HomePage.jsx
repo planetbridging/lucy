@@ -21,10 +21,12 @@ import Cpelookup from "./bewear/cpelookup";
 
 import io from "socket.io-client";
 import * as sec from "../crypto";
+import * as obj from "../nmapObjs";
+
 var lstNmapDone = new Map();
-var lstCpe = new Map();
-var lstExploits = new Map();
-var lstCveCpe = new Map();
+
+var dataManager = new obj.objManager(new Map(), new Map(), new Map());
+
 var lstComputers = [];
 var lstNetworks = [];
 var lstXml = [];
@@ -69,12 +71,12 @@ class HomePage extends React.Component {
 
   findCpe = (cpe) => {
     var lst = [];
-    if (lstCpe.has(cpe)) {
+    if (dataManager.lstCpe.has(cpe)) {
       lst.push(cpe);
     } else {
       var limit = 15;
       var count = 0;
-      for (const [key, value] of lstCpe.entries()) {
+      for (const [key, value] of dataManager.lstCpe.entries()) {
         if (count <= limit) {
           if (key.includes(cpe)) {
             lst.push(key);
@@ -168,7 +170,7 @@ class HomePage extends React.Component {
       var de = sec.decrypt(sk, data);
       var j = JSON.parse(de);
       for (var i in j) {
-        lstCpe.set(j[i]);
+        dataManager.lstCpe.set(j[i]);
       }
       //console.log(lstCpe);
       r.setState({ lstCpeLoaded: true });
@@ -179,9 +181,8 @@ class HomePage extends React.Component {
       var de = sec.decrypt(sk, data);
       var j = JSON.parse(de);
       for (var i in j) {
-        lstExploits.set(j[i]["id"], j[i]["lstcve"]);
+        dataManager.lstExploits.set(j[i]["id"], j[i]["lstcve"]);
       }
-      //console.log(lstExploits);
       r.setState({ lstExploitsLoaded: true });
       r.forceUpdate();
     });
@@ -189,11 +190,12 @@ class HomePage extends React.Component {
     chatSocket.on("lstcvecpe", function (data) {
       var de = sec.decrypt(sk, data);
       var j = JSON.parse(de);
-      console.log(j);
       for (var i in j) {
-        lstCveCpe.set(j[i]["CVE"], [j[i]["attackType"], j[i]["lstcpe"]]);
+        dataManager.lstCveCpe.set(j[i]["CVE"], [
+          j[i]["attackType"],
+          j[i]["lstcpe"],
+        ]);
       }
-      console.log(lstCveCpe);
       r.setState({ lstCveCpeLoaded: true });
       r.forceUpdate();
     });
@@ -383,7 +385,7 @@ class HomePage extends React.Component {
         />
       );*/
     } else if (currentTab == 6) {
-      return <Cpelookup sendBack={this.findCpe} />;
+      return <Cpelookup sendBack={this.findCpe} dataManager={dataManager} />;
     } else if (currentTab == 7) {
       return <div>cvelookup</div>;
     } else if (currentTab == 8) {
