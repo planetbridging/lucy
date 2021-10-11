@@ -89,6 +89,7 @@ var lstCpeDictionary = new Map();
 
 var lstCpeString = "";
 var lstExploitsString = "";
+var lstCveCpeString = "";
 
 var lstAttackTypes = [
   "buffer overflow",
@@ -250,6 +251,29 @@ async function prepareCpelookup() {
   //console.log(lstCve);
   lstCpeString = exportLstCpeDictionary();
   lstExploitsString = exportExploitLst();
+  lstCveCpeString = exportLstCveCpe();
+  //console.log(lstCveCpeString);
+}
+
+function exportLstCveCpe() {
+  var lst = new Map();
+  for (const [key, value] of lstCveLink.entries()) {
+    //lst.set({ id: key, lstcve: value });
+    for (var i in value) {
+      lst.set(value[i]);
+    }
+  }
+  var approved = [];
+  for (const [key, value] of lstCve.entries()) {
+    if (lst.has(key)) {
+      approved.push({
+        CVE: key,
+        lstcpe: value.lstCpe,
+        attackType: value.attackType,
+      });
+    }
+  }
+  return JSON.stringify(approved);
 }
 
 function exportLstCpeDictionary() {
@@ -276,10 +300,15 @@ function getLstCpeString() {
   return lstCpeString;
 }
 
+function getLstCveCpeString() {
+  return lstCveCpeString;
+}
+
 module.exports = {
   download,
   anotherDownload,
   prepareCpelookup,
   getLstExploitsString,
   getLstCpeString,
+  getLstCveCpeString,
 };

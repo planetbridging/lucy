@@ -53,6 +53,10 @@ async function multiIoPass(server) {
     var e_lstExploits = encrypt(secretKey, lstExploits);
     io.emit("lstexploits", e_lstExploits);
 
+    var lstCveCpe = prepare.getLstCveCpeString();
+    var e_lstCveCpe = encrypt(secretKey, lstCveCpe);
+    io.emit("lstcvecpe", e_lstCveCpe);
+
     socket.on("selectNetwork", async (msg) => {
       try {
         var de = decrypt(secretKey, msg);

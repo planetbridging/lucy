@@ -24,6 +24,7 @@ import * as sec from "../crypto";
 var lstNmapDone = new Map();
 var lstCpe = new Map();
 var lstExploits = new Map();
+var lstCveCpe = new Map();
 var lstComputers = [];
 var lstNetworks = [];
 var lstXml = [];
@@ -49,6 +50,7 @@ class HomePage extends React.Component {
     cpeSearch: "",
     lstCpeLoaded: false,
     lstExploitsLoaded: false,
+    lstCveCpeLoaded: false,
   };
 
   componentDidMount() {
@@ -183,6 +185,20 @@ class HomePage extends React.Component {
       r.setState({ lstExploitsLoaded: true });
       r.forceUpdate();
     });
+
+    chatSocket.on("lstcvecpe", function (data) {
+      var de = sec.decrypt(sk, data);
+      var j = JSON.parse(de);
+      console.log(j);
+      for (var i in j) {
+        lstCveCpe.set(j[i]["CVE"], [j[i]["attackType"], j[i]["lstcpe"]]);
+      }
+      console.log(lstCveCpe);
+      r.setState({ lstCveCpeLoaded: true });
+      r.forceUpdate();
+    });
+
+    //
   };
 
   btnSetTab = (num) => {
@@ -392,8 +408,32 @@ class HomePage extends React.Component {
     }
   };
 
+  renderDataImport = (name, status) => {
+    var j = {
+      i: "box",
+      w: "100vw",
+      p: "4",
+      content: {
+        i: "center",
+        content: {
+          i: "text",
+          content: name + " loading status: " + status,
+        },
+      },
+      flex: "1",
+      bg: "#3395FF",
+    };
+    return j;
+  };
+
   render() {
-    const { report, currentTab, lstExploitsLoaded, lstCpeLoaded } = this.state;
+    const {
+      report,
+      currentTab,
+      lstExploitsLoaded,
+      lstCpeLoaded,
+      lstCveCpeLoaded,
+    } = this.state;
     var loaded = {
       i: "box",
       w: "100vw",
@@ -402,40 +442,19 @@ class HomePage extends React.Component {
       flex: "1",
       bg: "#3395FF",
     };
-    var lstexploitsstatus = {
-      i: "box",
-      w: "100vw",
-      p: "4",
-      content: {
-        i: "center",
-        content: {
-          i: "text",
-          content: "lstexploits loading status: " + lstExploitsLoaded,
-        },
-      },
-      flex: "1",
-      bg: "#3395FF",
-    };
-    var lstcpestatus = {
-      i: "box",
-      w: "100vw",
-      p: "4",
-      content: {
-        i: "center",
-        content: {
-          i: "text",
-          content: "lstcpe loading status: " + lstCpeLoaded,
-        },
-      },
-      flex: "1",
-      bg: "#3395FF",
-    };
-    if (!lstExploitsLoaded || !lstCpeLoaded) {
+    var lstexploitsstatus = this.renderDataImport(
+      "lstexploits",
+      lstExploitsLoaded
+    );
+    var lstcpestatus = this.renderDataImport("lstcpe", lstCpeLoaded);
+    var lstcvecpestatus = this.renderDataImport("lstcvecpe", lstCveCpeLoaded);
+
+    if (!lstExploitsLoaded || !lstCpeLoaded || !lstCveCpeLoaded) {
       loaded = {
         i: "box",
         w: "100vw",
         p: "4",
-        content: [lstcpestatus, lstexploitsstatus],
+        content: [lstcpestatus, lstexploitsstatus, lstcvecpestatus],
         flex: "1",
         bg: "#3395FF",
       };
