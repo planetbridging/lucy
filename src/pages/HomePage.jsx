@@ -30,9 +30,10 @@ var dataManager = new obj.objManager(
   new Map(),
   new Map(),
   new Map(),
+  new Map(),
   new Map()
 );
-
+var lstMasterExploits = new Map();
 var lstComputers = [];
 var lstNetworks = [];
 var lstXml = [];
@@ -130,8 +131,51 @@ class HomePage extends React.Component {
             lstComputers.push(lst[l]);
           }
         }
-        //console.log(lstComputers);
+        this.loadExploits();
         this.forceUpdate();
+      }
+    }
+  };
+
+  loadExploits = () => {
+    for (var p in lstComputers) {
+      var lstcpe = lstComputers[p].lstCpe;
+      for (var c in lstcpe) {
+        var lstexploits = dataManager.getCpeResults(lstcpe[c]);
+        if (lstexploits.length == 0) {
+          var ammend = lstcpe[c].substring(0, lstcpe[c].length - 1);
+          lstexploits = dataManager.getCpeResults(ammend);
+        }
+        if (lstexploits.length == 0) {
+          var ammend = lstcpe[c].substring(0, lstcpe[c].length - 2);
+          lstexploits = dataManager.getCpeResults(ammend);
+        }
+        if (lstexploits.length == 0) {
+          var ammend = lstcpe[c].substring(0, lstcpe[c].length - 3);
+          lstexploits = dataManager.getCpeResults(ammend);
+        }
+        if (lstexploits.length == 0) {
+          var ammend = lstcpe[c].substring(0, lstcpe[c].length - 4);
+          lstexploits = dataManager.getCpeResults(ammend);
+        }
+        if (lstexploits.length == 0) {
+          var ammend = lstcpe[c].substring(0, lstcpe[c].length - 5);
+          lstexploits = dataManager.getCpeResults(ammend);
+        }
+
+        for (var e in lstexploits) {
+          if (!lstMasterExploits.has(lstexploits[e][0])) {
+            lstMasterExploits.set(lstexploits[e][0], [
+              lstexploits[e][1],
+              lstexploits[e][2],
+              lstexploits[e][3],
+              lstexploits[e][4],
+            ]);
+          }
+          lstComputers[p].appendCve(lstexploits[e][1]);
+          lstComputers[p].appendExploits(lstexploits[e][0]);
+          lstComputers[p].appendMsf(lstexploits[e][2], lstexploits[e][1]);
+        }
       }
     }
   };
@@ -160,6 +204,7 @@ class HomePage extends React.Component {
       } else {
         lstNetworks = [de];
       }
+
       r.forceUpdate();
     });
 
@@ -222,7 +267,28 @@ class HomePage extends React.Component {
         dataManager.lstExploitDb.set(s[0], [s[1], s[2]]);
       }
     }
-    console.log(dataManager.lstExploitDb);
+
+    var metasploit = await dl.getLink(
+      "http://localhost:1789/security/modules_metadata_base.json"
+    );
+
+    var json = JSON.parse(metasploit);
+    for (var j in json) {
+      var fn = json[j]["fullname"];
+      var desc = json[j]["description"];
+      var cve = "";
+      var ref = json[j]["references"];
+      for (var c in ref) {
+        if (ref[c].includes("CVE-")) {
+          cve = ref[c];
+          break;
+        }
+      }
+      if (cve != "") {
+        dataManager.lstMsf.set(cve, [fn, desc]);
+      }
+    }
+
     this.setState({ lstExploitDbLoaded: true });
   };
 

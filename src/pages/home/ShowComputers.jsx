@@ -63,6 +63,7 @@ class ShowComputers extends React.Component {
   renderComputers = (lstpc) => {
     var lst = [];
     console.log(lstpc);
+
     for (var p in lstpc) {
       lst.push({
         i: "wrapitem",
@@ -82,7 +83,7 @@ class ShowComputers extends React.Component {
             {
               i: "text",
               fontSize: "xs",
-              content: "CVEs: " + lstpc[p].cveCount,
+              content: "CVEs: " + lstpc[p].lstCve.length,
             },
             {
               i: "text",

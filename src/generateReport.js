@@ -16,8 +16,8 @@ export function generator(lstComputers, selected) {
     tbl += "<td>" + c + "</td>";
     tbl += "<td>" + lstComputers[c].hostAddress.ip + "</td>";
     tbl += "<td>" + lstComputers[c].lstPorts.length + "</td>";
-    tbl += "<td>" + lstComputers[c].cpeCount + "</td>";
-    tbl += "<td>" + lstComputers[c].cveCount + "</td>";
+    tbl += "<td>" + lstComputers[c].lstCpe.length + "</td>";
+    tbl += "<td>" + lstComputers[c].lstCve.length + "</td>";
     tbl += "<td>" + lstComputers[c].lstExploits.length + "</td>";
     tbl += "<td>" + lstComputers[c].lstMsf.length + "</td>";
     tbl += "</tr>";

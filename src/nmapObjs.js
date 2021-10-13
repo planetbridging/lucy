@@ -3,13 +3,32 @@ export class objComputer {
     this.hostname = hostname;
     this.hostAddress = hostAddress;
     this.lstCpe = [];
-    this.cpeCount = 0;
-    this.cveCount = 0;
+    this.lstCve = [];
     this.lstPorts = [];
     this.lstExploits = [];
     this.lstMsf = [];
     this.file = file;
     this.findExploits = false;
+  }
+
+  appendCve(cve) {
+    if (!this.lstCve.includes(cve)) {
+      this.lstCve.push(cve);
+    }
+  }
+
+  appendExploits(id) {
+    if (!this.lstExploits.includes(id)) {
+      this.lstExploits.push(id);
+    }
+  }
+
+  appendMsf(info, cve) {
+    if (info[0] != "") {
+      if (!this.lstMsf.includes(cve)) {
+        this.lstMsf.push(cve);
+      }
+    }
   }
 }
 
@@ -39,11 +58,12 @@ export class objService {
 }
 
 export class objManager {
-  constructor(lstCpe, lstExploits, lstCveCpe, exploitDb) {
+  constructor(lstCpe, lstExploits, lstCveCpe, exploitDb, lstMsf) {
     this.lstCpe = lstCpe;
     this.lstExploits = lstExploits;
     this.lstCveCpe = lstCveCpe;
     this.lstExploitDb = exploitDb;
+    this.lstMsf = lstMsf;
   }
 
   searchCpe(cpe) {
@@ -58,7 +78,11 @@ export class objManager {
       for (const [key, value] of this.lstExploits.entries()) {
         for (var i in value) {
           if (found.has(value[i])) {
-            lst.push([key, value, found.get(value[i])]);
+            var msf = ["", ""];
+            if (this.lstMsf.has(value[i])) {
+              msf = this.lstMsf.get(value[i]);
+            }
+            lst.push([key, value[i], msf]);
           }
         }
       }
