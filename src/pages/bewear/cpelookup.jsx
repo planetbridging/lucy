@@ -2,6 +2,8 @@ import React from "react";
 import { v4 as uuidv4 } from "uuid";
 import ContentEditable from "react-contenteditable";
 import * as cr from "../lucymode/src/templateGenerator/contentReader";
+import * as sc from "../lucymode/src/templateGenerator/staticContent";
+import * as jg from "../lucymode/src/templateGenerator/jsonGenerator";
 class Cpelookup extends React.Component {
   state = { value: "", results: [], selected: "" };
 
@@ -10,8 +12,7 @@ class Cpelookup extends React.Component {
   };
 
   btnSelectCpe = (item) => {
-    var tmp_results = this.props.dataManager.searchCpe(item);
-
+    var tmp_results = this.props.dataManager.getCpeResults(item);
     this.setState({ results: tmp_results, selected: item });
   };
 
@@ -24,12 +25,30 @@ class Cpelookup extends React.Component {
         content: { i: "text", content: "Didn't find anything :(" },
       };
     } else if (selected != "" && results.length > 0) {
+      var lst = [];
+
+      for (var i in results) {
+        var lstTypes = [];
+        lst.push(sc.getTr([results[i][0], results[i][1], results[i][2]]));
+        lst.push(sc.getTr([results[i][3], "", results[i][4]]));
+      }
+
       j = {
-        i: "center",
-        content: { i: "text", content: "Found: " + results.length },
+        i: "vstack",
+        spacing: "2",
+        content: [
+          {
+            i: "center",
+            content: { i: "text", content: "Found: " + results.length },
+          },
+          {
+            i: "box",
+            content: sc.getTable([sc.getTableHead(["id", "cve", "type"]), lst]),
+          },
+        ],
       };
     }
-    console.log(results);
+    console.log(j);
     return j;
   };
 

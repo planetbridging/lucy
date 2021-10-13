@@ -11,6 +11,7 @@ import * as sc from "./lucymode/src/templateGenerator/staticContent";
 import * as dc from "./lucymode/src/templateGenerator/dynamicContent";
 import * as cr from "./lucymode/src/templateGenerator/contentReader";
 import * as gen from "../generateReport";
+import * as dl from "../dl";
 import * as ic from "@chakra-ui/icons";
 
 //import * as ws from "../WebSock";
@@ -25,7 +26,12 @@ import * as obj from "../nmapObjs";
 
 var lstNmapDone = new Map();
 
-var dataManager = new obj.objManager(new Map(), new Map(), new Map());
+var dataManager = new obj.objManager(
+  new Map(),
+  new Map(),
+  new Map(),
+  new Map()
+);
 
 var lstComputers = [];
 var lstNetworks = [];
@@ -53,6 +59,7 @@ class HomePage extends React.Component {
     lstCpeLoaded: false,
     lstExploitsLoaded: false,
     lstCveCpeLoaded: false,
+    lstExploitDbLoaded: false,
   };
 
   componentDidMount() {
@@ -67,6 +74,7 @@ class HomePage extends React.Component {
       ],
     });
     this.listeners();
+    this.loadExploitDb();
   }
 
   findCpe = (cpe) => {
@@ -199,8 +207,23 @@ class HomePage extends React.Component {
       r.setState({ lstCveCpeLoaded: true });
       r.forceUpdate();
     });
+  };
 
-    //
+  loadExploitDb = async () => {
+    var data = await dl.getLink(
+      "http://localhost:1789/security/files_exploits.csv"
+    );
+    var rows = data.split("\n");
+    //id,file,description,date,author,type,platform,port
+    var c = 0;
+    for (var r in rows) {
+      if (rows[r].includes(",")) {
+        var s = rows[r].split(",");
+        dataManager.lstExploitDb.set(s[0], [s[1], s[2]]);
+      }
+    }
+    console.log(dataManager.lstExploitDb);
+    this.setState({ lstExploitDbLoaded: true });
   };
 
   btnSetTab = (num) => {
@@ -435,6 +458,7 @@ class HomePage extends React.Component {
       lstExploitsLoaded,
       lstCpeLoaded,
       lstCveCpeLoaded,
+      lstExploitDbLoaded,
     } = this.state;
     var loaded = {
       i: "box",
@@ -450,13 +474,25 @@ class HomePage extends React.Component {
     );
     var lstcpestatus = this.renderDataImport("lstcpe", lstCpeLoaded);
     var lstcvecpestatus = this.renderDataImport("lstcvecpe", lstCveCpeLoaded);
+    var lstexploitdbstatus = this.renderDataImport(
+      "lstExploitdb",
+      lstExploitDbLoaded
+    );
 
-    if (!lstExploitsLoaded || !lstCpeLoaded || !lstCveCpeLoaded) {
+    if (
+      (!lstExploitsLoaded || !lstCpeLoaded || !lstCveCpeLoaded,
+      !lstExploitDbLoaded)
+    ) {
       loaded = {
         i: "box",
         w: "100vw",
         p: "4",
-        content: [lstcpestatus, lstexploitsstatus, lstcvecpestatus],
+        content: [
+          lstcpestatus,
+          lstexploitsstatus,
+          lstcvecpestatus,
+          lstexploitdbstatus,
+        ],
         flex: "1",
         bg: "#3395FF",
       };

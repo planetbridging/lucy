@@ -39,10 +39,11 @@ export class objService {
 }
 
 export class objManager {
-  constructor(lstCpe, lstExploits, lstCveCpe) {
+  constructor(lstCpe, lstExploits, lstCveCpe, exploitDb) {
     this.lstCpe = lstCpe;
     this.lstExploits = lstExploits;
     this.lstCveCpe = lstCveCpe;
+    this.lstExploitDb = exploitDb;
   }
 
   searchCpe(cpe) {
@@ -60,6 +61,18 @@ export class objManager {
             lst.push([key, value, found.get(value[i])]);
           }
         }
+      }
+    }
+    return lst;
+  }
+
+  getCpeResults(cpe) {
+    var lst = [];
+    var lstids = this.searchCpe(cpe);
+    for (var r in lstids) {
+      if (this.lstExploitDb.has(lstids[r][0])) {
+        var id = this.lstExploitDb.get(lstids[r][0]);
+        lst.push([lstids[r][0], lstids[r][1], lstids[r][2], id[0], id[1]]);
       }
     }
     return lst;
