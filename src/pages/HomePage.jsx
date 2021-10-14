@@ -426,7 +426,11 @@ class HomePage extends React.Component {
   };
 
   btnGenerate = () => {
-    var data = gen.generator(lstComputers, lstSelectedNetworks);
+    var data = gen.generator(
+      lstComputers,
+      lstSelectedNetworks,
+      lstMasterExploits
+    );
     this.setState({ report: data });
   };
 

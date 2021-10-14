@@ -1,4 +1,5 @@
-export function generator(lstComputers, selected) {
+export function generator(lstComputers, selected, lstMasterExploits) {
+  console.log(lstMasterExploits);
   var html = "";
   html += "<h1>" + selected + "</h1>";
   var tbl = "<table>";
@@ -25,8 +26,17 @@ export function generator(lstComputers, selected) {
   tbl += "</table>";
   html += tbl;
   for (var c in lstComputers) {
-    html += "<p>" + lstComputers[c].hostAddress.ip + "</p>";
+    html += "<h2>" + lstComputers[c].hostAddress.ip + "</h2>";
+    html += "<h3>Ports for " + lstComputers[c].hostAddress.ip + "</h3>";
     html += getPorts(lstComputers[c]);
+    if (lstComputers[c].lstExploits.length > 0) {
+      html += "<h3>Exploits for " + lstComputers[c].hostAddress.ip + "</h3>";
+      html += getExploits(lstComputers[c], lstMasterExploits);
+    } else {
+      html += "<p>No quick exploits found</p>";
+    }
+
+    //console.log(lstComputers[c]);
   }
   return html;
 }
@@ -50,6 +60,48 @@ function getPorts(pc) {
       tbl += "<td>" + pc.lstPorts[c].service[s].version + "</td>";
       tbl += "<td>" + pc.lstPorts[c].service[s].cpe + "</td>";
       tbl += "</tr>";
+    }
+  }
+  tbl += "</table>";
+  return tbl;
+}
+
+function getExploits(pc, lstMasterExploits) {
+  var tbl = "<table>";
+  tbl += "<tr>";
+  tbl += "<td>ID</td>";
+  tbl += "<td>CVE</td>";
+  tbl += "</tr>\n";
+  for (var c in pc.lstExploits) {
+    if (lstMasterExploits.has(pc.lstExploits[c])) {
+      var e = lstMasterExploits.get(pc.lstExploits[c]);
+
+      tbl += "<tr>";
+      tbl += "<td>" + pc.lstExploits[c] + "</td>";
+      tbl += "<td>" + e[0] + "</td>";
+      tbl += "</tr>\n";
+
+      tbl += "<tr>";
+      tbl += "<td colspan='2'>" + e[2] + "</td>";
+      tbl += "</tr>\n";
+
+      tbl += "<tr>";
+      tbl += "<td colspan='2'>" + e[3] + "</td>";
+      tbl += "</tr>\n";
+
+      if (e[1][0] != "") {
+        tbl += "<tr>";
+        tbl += "<td colspan='2'>MSF</td>";
+        tbl += "</tr>\n";
+
+        tbl += "<tr>";
+        tbl += "<td colspan='2'>" + e[1][0] + "</td>";
+        tbl += "</tr>\n";
+
+        tbl += "<tr>";
+        tbl += "<td colspan='2'>" + e[1][1] + "</td>";
+        tbl += "</tr>\n";
+      }
     }
   }
   tbl += "</table>";
