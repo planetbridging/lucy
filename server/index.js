@@ -5,15 +5,10 @@ const app = express();
 const { encrypt, decrypt } = require("./crypto");
 const file_help = require("./file_reading");
 const prepare = require("./prepare");
+const { objWebScrap, sleep } = require("./googlebot");
 //const lstcve = require("./security_data/lstcve_db");
 
 var connectionCount = 0;
-
-function sleep(ms) {
-  return new Promise((resolve) => {
-    setTimeout(resolve, ms);
-  });
-}
 
 async function multiIoPass(server) {
   const io = require("socket.io")(server, {
@@ -105,6 +100,22 @@ async function getFilesInNetwork(path) {
 var port = 1789;
 
 (async () => {
+  const readline = require("readline").createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  readline.question(`did you want to test something ?`, (name) => {
+    if (name.includes("y")) {
+      testingAutoScraping();
+    } else {
+      startup();
+    }
+    readline.close();
+  });
+})();
+
+async function startup() {
   await prepare.prepareCpelookup();
   var server_http = http.createServer(app);
   await multiIoPass(server_http);
@@ -121,4 +132,49 @@ var port = 1789;
   server_http.listen(port, function () {
     console.log("server running at " + port);
   });
-})();
+}
+
+async function testingAutoScraping() {
+  var item = "@bendigoadelaide.com.au";
+  var findSearch = '"' + item + '"';
+
+  var newBot = new objWebScrap();
+  await newBot.open();
+
+  var lstlinks = new Map();
+  var results = new Map();
+
+  var size = 1;
+  var count = 0;
+  while (size > 0) {
+    console.log("checking bing page " + (count / 10 + 1));
+    /*var link =
+      'https://www.google.com.au/search?q="bendigoadelaide.com.au"&start=' +
+      count;*/
+    var link =
+      "https://www.bing.com/search?q=" + findSearch + "&first=" + count;
+    await newBot.jumpTo(link);
+    await sleep(2000);
+    console.log("page " + link);
+    var getLinks = await newBot.getLinks();
+
+    for (const [key, value] of getLinks.entries()) {
+      console.log("checking " + key);
+      try {
+        await newBot.jumpTo(key);
+        if (!lstlinks.has(key)) {
+          var found = await newBot.findInPage(item);
+          results.set(found);
+          console.log("found items count " + found.size);
+          console.log(found);
+        }
+      } catch {}
+    }
+    console.log(getLinks);
+    getLinks.forEach((value, key) => lstlinks.set(key, value));
+    size = getLinks.size;
+
+    count += 10;
+  }
+  await newBot.close();
+}
