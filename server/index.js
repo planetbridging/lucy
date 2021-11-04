@@ -192,6 +192,8 @@ async function testingAutoSiteSearch() {
 async function siteSearch(search, site) {
   var fpath = __dirname + "//sitesearch//" + site;
   await file_help.createFolder(fpath);
+  var subfpath = fpath + "//" + search;
+  await file_help.createFolder(subfpath);
   console.log("searching: " + search);
 
   var newBot = new objWebScrap();
@@ -213,7 +215,7 @@ async function siteSearch(search, site) {
     var getLinks = await newBot.getLinks();
     for (const [key, value] of getLinks.entries()) {
       if (!approvedlinks.has(key)) {
-        file_help.appendToFile(key + "\n", fpath + "//links.csv");
+        file_help.appendToFile(key + "\n", subfpath + "//links.csv");
         approvedlinks.set(key);
       }
     }
@@ -222,7 +224,7 @@ async function siteSearch(search, site) {
     size = getLinks.size;
 
     count += 10;
-    console.log(approvedlinks);
+    //console.log(approvedlinks);
   }
   await newBot.close();
 }
