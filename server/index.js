@@ -99,19 +99,20 @@ async function getFilesInNetwork(path) {
 
 var port = 1789;
 
-(async () => {
-  const readline = require("readline").createInterface({
-    input: process.stdin,
-    output: process.stdout,
-  });
+const readline = require("readline").createInterface({
+  input: process.stdin,
+  output: process.stdout,
+});
 
+(async () => {
   readline.question(`did you want to test something ?`, (name) => {
     if (name.includes("y")) {
-      testingAutoScraping();
+      //testingAutoScraping();
+      testingAutoSiteSearch();
     } else {
       startup();
     }
-    readline.close();
+    //readline.close();
   });
 })();
 
@@ -175,6 +176,53 @@ async function testingAutoScraping() {
     size = getLinks.size;
 
     count += 10;
+  }
+  await newBot.close();
+}
+
+async function testingAutoSiteSearch() {
+  readline.question(`what do you want to search ? \n`, async (q1) => {
+    readline.question(`what site do you want to search ? \n`, async (q2) => {
+      await siteSearch(q1, q2);
+      readline.close();
+    });
+  });
+}
+
+async function siteSearch(search, site) {
+  var fpath = __dirname + "//sitesearch//" + site;
+  await file_help.createFolder(fpath);
+  console.log("searching: " + search);
+
+  var newBot = new objWebScrap();
+  await newBot.open();
+
+  var findSearch = "site:" + site + ' "' + search + '"';
+
+  var lstlinks = new Map();
+  var approvedlinks = new Map();
+  var size = 1;
+  var count = 0;
+
+  while (size > 0) {
+    var link =
+      "https://www.bing.com/search?q=" + findSearch + "&first=" + count;
+    await newBot.jumpTo(link);
+    await sleep(2000);
+    console.log("page " + link);
+    var getLinks = await newBot.getLinks();
+    for (const [key, value] of getLinks.entries()) {
+      if (!approvedlinks.has(key)) {
+        file_help.appendToFile(key + "\n", fpath + "//links.csv");
+        approvedlinks.set(key);
+      }
+    }
+    //console.log(getLinks);
+    getLinks.forEach((value, key) => lstlinks.set(key, value));
+    size = getLinks.size;
+
+    count += 10;
+    console.log(approvedlinks);
   }
   await newBot.close();
 }

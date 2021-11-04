@@ -67,24 +67,7 @@ async function getLocalJson(path) {
 }
 
 function appendToFile(data, path) {
-  //var data = "\nLearn Node.js with the help of well built Node.js Tutorial.";
   fs.appendFileSync(path, data, "utf8");
-  // append data to file
-  /*(var file_descriptor  = fs.appendFile(path,data, 'utf8',
-        // callback function
-        function(err) {     
-            if (err) throw err;
-            // if no error
-            //console.log("Data is appended to file successfully.")
-    });*/
-
-  /*fs.close(file_descriptor, (err) => {
-        if (err)
-          console.error('Failed to close file', err);
-        else {
-          console.log("\n> File Closed successfully");
-        }
-    });*/
 }
 
 async function checkExist(path) {

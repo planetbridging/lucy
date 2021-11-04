@@ -10,11 +10,16 @@ class objWebScrap {
   }
   async jumpTo(link) {
     await this.page.goto(link);
+    //await this.page.waitForNavigation();
+  }
+
+  async manualWait() {
+    await this.page.waitForNavigation();
   }
 
   async open() {
     this.browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
       args: ["--no-sandbox"],
     });
     this.page = await this.browser.newPage();
