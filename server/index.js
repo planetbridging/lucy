@@ -209,7 +209,7 @@ async function siteSearch(search, site) {
   var lstlinks = new Map();
   var approvedlinks = new Map();
   var size = 1;
-  var count = 0;
+  var count = 1;
   var link = "https://www.bing.com/search?q=" + findSearch;
   await newBot.jumpTo(link);
 
@@ -217,7 +217,7 @@ async function siteSearch(search, site) {
 
   await sleep(2000);
   while (size > 0) {
-    console.log("page " + link);
+    console.log("page " + count);
     var getLinks = await newBot.getLinks();
     for (const [key, value] of getLinks.entries()) {
       if (!approvedlinks.has(key)) {
@@ -229,7 +229,7 @@ async function siteSearch(search, site) {
     getLinks.forEach((value, key) => lstlinks.set(key, value));
     size = getLinks.size;
 
-    count += 10;
+    count += 1;
     await sleep(2000);
     var found = await newBot.pressNextBing();
     if (!found) {
@@ -238,5 +238,5 @@ async function siteSearch(search, site) {
     //console.log(approvedlinks);
   }
   console.log("complete");
-  //await newBot.close();
+  await newBot.close();
 }

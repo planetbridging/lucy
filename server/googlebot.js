@@ -57,19 +57,9 @@ class objWebScrap {
         var t = await title;
         var thref = await href;
         if (t.includes("Next page")) {
-          /*const href = await links[i].href;
-          console.log("---");
-          console.log(href);
-          console.log("---");*/
           await this.page.goto(thref);
           return true;
         }
-        //var attr = await links[i].getAttribute("title");
-        //let linkText = await attr.jsonValue();
-        //console.log(attr);
-        /*if (attr.includes("Next page")) {
-          links[i].click();
-        }*/
       } catch {
         console.log("broke");
       }
