@@ -105,10 +105,11 @@ const readline = require("readline").createInterface({
 });
 
 (async () => {
-  readline.question(`did you want to test something ?`, (name) => {
+  readline.question(`did you want to test something ?`, async (name) => {
     if (name.includes("y")) {
       //testingAutoScraping();
       testingAutoSiteSearch();
+      //await siteSearch("GlobalX - A Dye & Durham Company", "linkedin.com");
     } else {
       startup();
     }
@@ -191,6 +192,12 @@ async function testingAutoSiteSearch() {
 
 async function siteSearch(search, site) {
   var fpath = __dirname + "//sitesearch//" + site;
+  var findSearch = "site:" + site + ' "' + search + '"';
+  if (site == "") {
+    fpath = __dirname + "//sitesearch//searching-" + search;
+    findSearch = '"' + search + '"';
+  }
+
   await file_help.createFolder(fpath);
   var subfpath = fpath + "//" + search;
   await file_help.createFolder(subfpath);
@@ -199,18 +206,17 @@ async function siteSearch(search, site) {
   var newBot = new objWebScrap();
   await newBot.open();
 
-  var findSearch = "site:" + site + ' "' + search + '"';
-
   var lstlinks = new Map();
   var approvedlinks = new Map();
   var size = 1;
   var count = 0;
+  var link = "https://www.bing.com/search?q=" + findSearch;
+  await newBot.jumpTo(link);
 
+  //sb_form_q
+
+  await sleep(2000);
   while (size > 0) {
-    var link =
-      "https://www.bing.com/search?q=" + findSearch + "&first=" + count;
-    await newBot.jumpTo(link);
-    await sleep(2000);
     console.log("page " + link);
     var getLinks = await newBot.getLinks();
     for (const [key, value] of getLinks.entries()) {
@@ -224,7 +230,13 @@ async function siteSearch(search, site) {
     size = getLinks.size;
 
     count += 10;
+    await sleep(2000);
+    var found = await newBot.pressNextBing();
+    if (!found) {
+      break;
+    }
     //console.log(approvedlinks);
   }
-  await newBot.close();
+  console.log("complete");
+  //await newBot.close();
 }

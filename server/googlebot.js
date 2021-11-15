@@ -20,9 +20,10 @@ class objWebScrap {
   async open() {
     this.browser = await puppeteer.launch({
       headless: false,
-      args: ["--no-sandbox"],
+      args: ["--no-sandbox", "--disable-setuid-sandbox"],
     });
     this.page = await this.browser.newPage();
+    await this.page.setDefaultNavigationTimeout(60000);
   }
 
   async getLinks() {
@@ -40,6 +41,54 @@ class objWebScrap {
       }
     }
     return googlelinks;
+  }
+
+  async pressNextBing() {
+    /*const attr = await this.page.$$eval("a", (el) =>
+      el.map((x) => x.getAttribute("title"))
+    );*/
+
+    const links = await this.page.$$("a");
+    //console.log(attr);
+    for (var i in links) {
+      try {
+        const title = await (await links[i].getProperty("title")).jsonValue();
+        const href = await (await links[i].getProperty("href")).jsonValue();
+        var t = await title;
+        var thref = await href;
+        if (t.includes("Next page")) {
+          /*const href = await links[i].href;
+          console.log("---");
+          console.log(href);
+          console.log("---");*/
+          await this.page.goto(thref);
+          return true;
+        }
+        //var attr = await links[i].getAttribute("title");
+        //let linkText = await attr.jsonValue();
+        //console.log(attr);
+        /*if (attr.includes("Next page")) {
+          links[i].click();
+        }*/
+      } catch {
+        console.log("broke");
+      }
+    }
+    //const hrefs = await this.page.$$eval("a", (as) => as.map((a) => a.href));
+    /*const links = await this.page.$$("a");
+
+    for (var i in links) {
+      //console.log(links[i]);
+
+      try {
+        let valueHandle = await links[i].getAttribute("title");
+        //console.log(valueHandle);
+        let linkText = await valueHandle.jsonValue();
+        console.log(linkText);
+      } catch {}
+
+    }*/
+    return false;
   }
 
   async findInPage(search) {
@@ -69,6 +118,15 @@ function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
   });
+}
+
+function getText(linkText) {
+  linkText = linkText.replace(/\r\n|\r/g, "\n");
+  linkText = linkText.replace(/\ +/g, " ");
+
+  // Replace &nbsp; with a space
+  var nbspPattern = new RegExp(String.fromCharCode(160), "g");
+  return linkText.replace(nbspPattern, " ");
 }
 
 module.exports = {
