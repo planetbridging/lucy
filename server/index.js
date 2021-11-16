@@ -193,6 +193,7 @@ async function testingAutoSiteSearch() {
 async function siteSearch(search, site) {
   var fpath = __dirname + "//sitesearch//" + site;
   var findSearch = "site:" + site + ' "' + search + '"';
+  //var findSearch = site + ' "' + search + '"';
   if (site == "") {
     fpath = __dirname + "//sitesearch//searching-" + search;
     findSearch = '"' + search + '"';
@@ -210,8 +211,9 @@ async function siteSearch(search, site) {
   var approvedlinks = new Map();
   var size = 1;
   var count = 1;
-  var link = "https://www.bing.com/search?q=" + findSearch;
-  await newBot.jumpTo(link);
+  //var link = "https://www.bing.com/search?q=" + findSearch;
+  console.log(findSearch);
+  await newBot.setupBingSearch(findSearch);
 
   //sb_form_q
 
@@ -228,7 +230,7 @@ async function siteSearch(search, site) {
     //console.log(getLinks);
     getLinks.forEach((value, key) => lstlinks.set(key, value));
     size = getLinks.size;
-
+    await newBot.getBingScrap();
     count += 1;
     await sleep(2000);
     var found = await newBot.pressNextBing();

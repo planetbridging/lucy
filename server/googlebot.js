@@ -26,6 +26,32 @@ class objWebScrap {
     await this.page.setDefaultNavigationTimeout(60000);
   }
 
+  async setupBingSearch(searchString) {
+    const encodedString = encodeURI(searchString);
+    await this.page.goto(
+      `https://bing.com/search?q=${encodedString}&setmkt=en-WW&setlang=en`
+    );
+    await this.page.waitForSelector(".b_pag");
+  }
+
+  async getBingScrap() {
+    const numberOfResults = await this.page.$$("#b_results > li");
+    for (let i = 1; i <= numberOfResults.length; i++) {
+      await this.page.hover(`#b_results > li:nth-child(${i})`);
+      await this.page.waitForTimeout(1000);
+    }
+    await this.page.hover(".b_pag");
+
+    const result = await this.page.evaluate(function () {
+      return Array.from(document.querySelectorAll("li.b_algo")).map((el) => ({
+        link: el.querySelector("h2 > a").getAttribute("href"),
+        title: el.querySelector("h2 > a").innerText,
+        snippet: el.querySelector("p, .b_mText div").innerText,
+      }));
+    });
+    return result;
+  }
+
   async getLinks() {
     var googlelinks = new Map();
     const hrefs = await this.page.$$eval("a", (as) => as.map((a) => a.href));
@@ -58,6 +84,7 @@ class objWebScrap {
         var thref = await href;
         if (t.includes("Next page")) {
           await this.page.goto(thref);
+          //await links[i].click();
           return true;
         }
       } catch {
